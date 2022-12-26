@@ -1,0 +1,33 @@
+* {
+  box-sizing: border-box;
+  /* outline: 1px solid black; */
+}
+body {
+  margin: 0;
+  /* height: 100vh; */
+}
+.container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+  align-items: center;
+  justify-content: center;
+}
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+  grid-template-rows: repeat(3, 100px);
+  gap: 5px;
+  background-color: rgb(106, 106, 106);
+}
+.field {
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+img {
+  height: 80px;
+}
