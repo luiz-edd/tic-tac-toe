@@ -151,7 +151,7 @@ const displayController = (() => {
 })();
 
 const gameFlow = (() => {
-  let turn;
+  let turn = true;
   const playRound = (player, element, index, field) => {
     // verify if the position on game is empty
     if (!game.getGameBoardField(index)) {
