@@ -33,10 +33,13 @@ const game = (() => {
       return true;
     }
   };
+
   const getGameBoardField = (index) => gameBoard[index];
+
   const resetGameBoard = () => {
     gameBoard = Array(9);
   };
+
   const getGameBoard = () => gameBoard;
 
   return {
@@ -66,18 +69,42 @@ const player = (name, shape) => {
     getName,
   };
 };
+const computerMechanics = (() => {
+  const createComputerMoveAndReturnIndex = (player) => {
+    let computerPlayIndex;
+    do {
+      computerPlayIndex = Math.floor(Math.random() * 9);
+    } while (game.getGameBoardField(computerPlayIndex));
+    console.log(computerPlayIndex);
+    game.setGameBoard(computerPlayIndex, player.getShape());
+    return computerPlayIndex;
+  };
 
-const generateComputerPlayer = (player1) => {
-  if (player1.getShape() === 'o') {
-    return player('computer', 'x');
-  }
-  return player('computer', 'o');
-};
+  const generateComputerPlayer = (player1) => {
+    if (player1.getShape() === 'o') {
+      return player('computer', 'x');
+    }
+    return player('computer', 'o');
+  };
+  const generatePlayer2 = (player1) => {
+    if (player1.getShape() === 'o') {
+      return player('player 2', 'x');
+    }
+    return player('player 2', 'o');
+  };
+  return {
+    generateComputerPlayer,
+    createComputerMoveAndReturnIndex,
+    generatePlayer2,
+  };
+})();
 
 const displayController = (() => {
   const field = Array.from(document.querySelectorAll('.field'));
+  const shape = Array.from(document.querySelectorAll('input[name="shape"]'));
+  const opponent = Array.from(document.querySelectorAll('input[name="opponent"]'));
 
-  const markShapeOnBoard = (player) => {
+  const returnShapeElement = (player) => {
     const x = document.createElement('img');
     const o = document.createElement('img');
     x.setAttribute('src', 'img/x.svg');
@@ -93,48 +120,24 @@ const displayController = (() => {
   const addEvents = (player) => {
     field.forEach((element, index) => {
       element.addEventListener('click', () => {
-        if (!game.getGameBoardField(index)) {
-          element.appendChild(markShapeOnBoard(player));
-          game.setGameBoard(index, player.getShape());
-          const computer = generateComputerPlayer(player);
-          // change the shape every move
-          // if (player.getShape() === 'x') {
-          //   player.setShape('o');
-          // } else {
-          //   player.setShape('x');
-          // }
-
-          // verify if player 1 wins
-          if (game.verifyWin(player)) {
-            game.resetGameBoard();
-            resetDisplay();
-          }
-          // verify if computer 2 wins
-          makeComputerPlay(computer);
-          if (game.verifyWin(computer)) {
-            game.resetGameBoard();
-            resetDisplay();
-          }
-          // verify tie
-          if (!game.getGameBoard().includes(undefined)) {
-            game.resetGameBoard();
-            resetDisplay();
-            console.log('tie');
-          }
+        if (document.querySelector('input[name="opponent"]:checked').value === 'computer') {
+          gameFlow.playRound(player, element, index, field);
+        } else {
+          gameFlow.playRoundAgainstFriend(player, element, index, field);
         }
-        // console.log(player.getShape());
       });
     });
-  };
-
-  const makeComputerPlay = (player) => {
-    let computerPlayIndex;
-    do {
-      computerPlayIndex = Math.floor(Math.random() * 9);
-    } while (game.getGameBoardField(computerPlayIndex));
-    console.log(computerPlayIndex);
-    game.setGameBoard(computerPlayIndex, player.getShape());
-    field[computerPlayIndex].appendChild(markShapeOnBoard(player));
+    shape.forEach((element) => {
+      element.addEventListener('click', () => {
+        gameFlow.resetGame();
+        player.setShape(element.value);
+      });
+    });
+    opponent.forEach((element) => {
+      element.addEventListener('click', () => {
+        gameFlow.resetGame();
+      });
+    });
   };
 
   const resetDisplay = () => {
@@ -144,10 +147,72 @@ const displayController = (() => {
       }
     });
   };
-  return { addEvents, resetDisplay };
+  return { addEvents, resetDisplay, returnShapeElement };
 })();
 
 const gameFlow = (() => {
-  const player1 = player('luiz', 'x');
-  displayController.addEvents(player1);
+  let turn;
+  const playRound = (player, element, index, field) => {
+    // verify if the position on game is empty
+    if (!game.getGameBoardField(index)) {
+      const computer = computerMechanics.generateComputerPlayer(player); // generate a computer
+      game.setGameBoard(index, player.getShape()); // add the movement to the gameBoard
+      element.appendChild(displayController.returnShapeElement(player)); // add the movement to the display
+      // verify if player 1 wins
+      if (game.verifyWin(player)) resetGame();
+      // verify tie
+      if (!game.getGameBoard().includes(undefined)) {
+        resetGame();
+        console.log('tie');
+      }
+      if (document.querySelector('input[name="opponent"]:checked').value === 'computer') {
+        // make computer movement
+        field[computerMechanics.createComputerMoveAndReturnIndex(computer)].appendChild(
+          displayController.returnShapeElement(computer),
+        );
+      }
+      // verify if computer win
+      if (game.verifyWin(computer)) {
+        resetGame();
+      }
+      // verify tie again
+      if (!game.getGameBoard().includes(undefined)) {
+        resetGame();
+        console.log('tie');
+      }
+    }
+  };
+
+  const playRoundAgainstFriend = (player1, element, index, field) => {
+    const player2 = computerMechanics.generatePlayer2(player1);
+
+    const playerMove = (player) => {
+      // verify if the position on game is empty
+      if (!game.getGameBoardField(index)) {
+        game.setGameBoard(index, player.getShape()); // add the movement to the gameBoard
+        element.appendChild(displayController.returnShapeElement(player)); // add the movement to the display
+        // verify if player 1 wins
+        if (game.verifyWin(player)) resetGame();
+        // verify tie
+        if (!game.getGameBoard().includes(undefined)) {
+          resetGame();
+          console.log('tie');
+        }
+        turn = !turn;
+      }
+    };
+
+    turn ? playerMove(player1) : playerMove(player2);
+  };
+
+  const resetGame = () => {
+    game.resetGameBoard();
+    displayController.resetDisplay();
+  };
+
+  const playerShape = document.querySelector('input[name="shape"]:checked').value;
+  const newPlayer = player('Player 1', playerShape);
+  displayController.addEvents(newPlayer);
+
+  return { playRound, resetGame, playRoundAgainstFriend };
 })();
