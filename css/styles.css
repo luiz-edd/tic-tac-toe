@@ -10,7 +10,7 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 50px;
+  gap: 25px;
   align-items: center;
   justify-content: center;
 }
@@ -30,4 +30,11 @@ body {
 
 img {
   height: 80px;
+}
+
+.display {
+  height: 80px;
+}
+.winner {
+  font-size: 2rem;
 }

@@ -12,24 +12,24 @@ const game = (() => {
     // verify 3 equal shapes in a row
     for (let i = 0; i <= 6; i += 3) {
       if (gameBoard[i] && gameBoard[i] === gameBoard[i + 1] && gameBoard[i] === gameBoard[i + 2]) {
-        console.log(`${player.getName()} win`);
+        animation.displayWinner(player);
         return true;
       }
     }
     // verify 3 equal shapes in a colun
     for (let i = 0; i <= 3; i++) {
       if (gameBoard[i] && gameBoard[i] === gameBoard[i + 3] && gameBoard[i] === gameBoard[i + 6]) {
-        console.log(`${player.getName()} win`);
+        animation.displayWinner(player);
         return true;
       }
     }
     // verify 3 equal shapes in a vertical
     if (gameBoard[0] && gameBoard[0] === gameBoard[4] && gameBoard[0] === gameBoard[8]) {
-      console.log(`${player.getName()} win`);
+      animation.displayWinner(player);
       return true;
     }
     if (gameBoard[2] && gameBoard[2] === gameBoard[4] && gameBoard[2] === gameBoard[6]) {
-      console.log(`${player.getName()} win`);
+      animation.displayWinner(player);
       return true;
     }
   };
@@ -82,15 +82,15 @@ const computerMechanics = (() => {
 
   const generateComputerPlayer = (player1) => {
     if (player1.getShape() === 'o') {
-      return player('computer', 'x');
+      return player('Computer', 'x');
     }
-    return player('computer', 'o');
+    return player('Computer', 'o');
   };
   const generatePlayer2 = (player1) => {
     if (player1.getShape() === 'o') {
-      return player('player 2', 'x');
+      return player('Player 2', 'x');
     }
-    return player('player 2', 'o');
+    return player('Player 2', 'o');
   };
   return {
     generateComputerPlayer,
@@ -215,4 +215,12 @@ const gameFlow = (() => {
   displayController.addEvents(newPlayer);
 
   return { playRound, resetGame, playRoundAgainstFriend };
+})();
+
+const animation = (() => {
+  const winner = document.querySelector('.winner');
+  const displayWinner = (player) => {
+    winner.textContent = `${player.getName()} win!`;
+  };
+  return { displayWinner };
 })();
