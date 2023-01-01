@@ -13,6 +13,7 @@ const game = (() => {
     for (let i = 0; i <= 6; i += 3) {
       if (gameBoard[i] && gameBoard[i] === gameBoard[i + 1] && gameBoard[i] === gameBoard[i + 2]) {
         animation.displayWinner(player);
+        animation.blinkWinner([i], [i + 1], [i + 2]);
         return true;
       }
     }
@@ -20,16 +21,19 @@ const game = (() => {
     for (let i = 0; i <= 3; i++) {
       if (gameBoard[i] && gameBoard[i] === gameBoard[i + 3] && gameBoard[i] === gameBoard[i + 6]) {
         animation.displayWinner(player);
+        animation.blinkWinner([i], [i + 3], [i + 6]);
         return true;
       }
     }
     // verify 3 equal shapes in a vertical
     if (gameBoard[0] && gameBoard[0] === gameBoard[4] && gameBoard[0] === gameBoard[8]) {
       animation.displayWinner(player);
+      animation.blinkWinner([0], [4], [8]);
       return true;
     }
     if (gameBoard[2] && gameBoard[2] === gameBoard[4] && gameBoard[2] === gameBoard[6]) {
       animation.displayWinner(player);
+      animation.blinkWinner([2], [4], [6]);
       return true;
     }
   };
@@ -205,7 +209,9 @@ const gameFlow = (() => {
     turn ? playerMove(player1) : playerMove(player2);
   };
 
-  const resetGame = () => {
+  // const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+  const resetGame = async () => {
+    // await delay(5000);
     game.resetGameBoard();
     displayController.resetDisplay();
   };
@@ -218,9 +224,20 @@ const gameFlow = (() => {
 })();
 
 const animation = (() => {
+  const field = Array.from(document.querySelectorAll('.field'));
+
   const winner = document.querySelector('.winner');
   const displayWinner = (player) => {
     winner.textContent = `${player.getName()} win!`;
   };
-  return { displayWinner };
+  const resetDisplay = () => {
+    winner.textContent = '';
+  };
+
+  const blinkWinner = async (position1, position2, position3) => {
+    field[position1].firstElementChild.classList.add('blink');
+    field[position2].firstElementChild.classList.add('blink');
+    field[position3].firstElementChild.classList.add('blink');
+  };
+  return { displayWinner, resetDisplay, blinkWinner };
 })();

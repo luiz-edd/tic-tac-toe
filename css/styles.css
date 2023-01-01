@@ -38,3 +38,12 @@ img {
 .winner {
   font-size: 2rem;
 }
+.blink {
+  animation: blink 1s linear infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
